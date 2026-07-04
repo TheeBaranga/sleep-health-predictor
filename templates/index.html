@@ -1,153 +1,717 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sleep Disorder AI Predictor</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; padding: 40px; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2c3e50; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #2980b9; }
-        #result-box { margin-top: 20px; padding: 15px; border-radius: 5px; text-align: center; font-weight: bold; font-size: 18px; display: none; }
-        .healthy { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .disorder { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Somnia — Sleep Health</title>
+
+<style>
+  :root{
+    --bg:#f5f5f7;
+    --surface:#ffffff;
+    --field:#f0f0f2;
+    --border:rgba(0,0,0,0.06);
+    --text:#1d1d1f;
+    --text-secondary:#6e6e73;
+    --text-tertiary:#a1a1a6;
+    --blue:#0071e3;
+    --purple:#8b5cf6;
+    --pink:#ff2d78;
+    --blue-tint:rgba(0,113,227,0.08);
+    --green:#34c759;
+    --teal:#30d5c8;
+    --orange:#ff9500;
+    --red:#ff3b30;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono:"SF Mono", "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html{ background:var(--bg); }
+
+  body{
+    margin:0;
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--text);
+    padding:0 0 100px;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Ambient gradient mesh ---------- */
+  .mesh{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:0.5;
+  }
+  .blob-1{
+    width:520px; height:520px;
+    background:radial-gradient(circle, var(--blue), transparent 70%);
+    top:-180px; left:-120px;
+    animation:drift1 22s ease-in-out infinite;
+  }
+  .blob-2{
+    width:460px; height:460px;
+    background:radial-gradient(circle, var(--purple), transparent 70%);
+    top:-80px; right:-160px;
+    animation:drift2 26s ease-in-out infinite;
+  }
+  .blob-3{
+    width:420px; height:420px;
+    background:radial-gradient(circle, var(--pink), transparent 70%);
+    top:280px; left:40%;
+    opacity:0.32;
+    animation:drift3 30s ease-in-out infinite;
+  }
+  @keyframes drift1{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(60px,40px) scale(1.08); }
+  }
+  @keyframes drift2{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(-50px,60px) scale(1.05); }
+  }
+  @keyframes drift3{
+    0%,100%{ transform:translate(-50%,0) scale(1); }
+    50%{ transform:translate(-50%,-30px) scale(1.12); }
+  }
+
+  nav, .hero, .layout, footer{ position:relative; z-index:1; }
+
+  /* ---------- Nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:10;
+    backdrop-filter:saturate(180%) blur(20px);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);
+    background:rgba(245,245,247,0.68);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:980px;
+    margin:0 auto;
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .wordmark{
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    background:linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .nav-tag{
+    font-size:12px;
+    color:var(--text-secondary);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    max-width:720px;
+    margin:0 auto;
+    padding:90px 24px 20px;
+    text-align:center;
+  }
+  .hero .kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--blue);
+    background:var(--blue-tint);
+    padding:6px 14px;
+    border-radius:100px;
+    margin:0 0 20px;
+    letter-spacing:0.01em;
+  }
+  .hero h1{
+    font-size:clamp(34px, 5.5vw, 58px);
+    font-weight:700;
+    letter-spacing:-0.03em;
+    line-height:1.08;
+    margin:0 0 16px;
+    background:linear-gradient(100deg, var(--text) 20%, var(--blue) 45%, var(--purple) 60%, var(--text) 85%);
+    background-size:250% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    animation:shine 9s ease-in-out infinite;
+  }
+  @keyframes shine{
+    0%{ background-position:0% 50%; }
+    50%{ background-position:100% 50%; }
+    100%{ background-position:0% 50%; }
+  }
+  .hero p{
+    font-size:19px;
+    font-weight:400;
+    color:var(--text-secondary);
+    line-height:1.5;
+    margin:0 auto;
+    max-width:480px;
+  }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    max-width:980px;
+    margin:56px auto 0;
+    padding:0 24px;
+    display:grid;
+    grid-template-columns:1.25fr 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:860px){
+    .layout{ grid-template-columns:1fr; }
+  }
+
+  form{ display:flex; flex-direction:column; gap:14px; }
+
+  .card{
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    border:1px solid rgba(255,255,255,0.6);
+    border-radius:22px;
+    padding:28px;
+    box-shadow:0 1px 1px rgba(0,0,0,0.02), 0 16px 40px -22px rgba(0,0,0,0.18);
+    transition:transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 1px 1px rgba(0,0,0,0.03), 0 24px 48px -20px rgba(0,0,0,0.22);
+  }
+
+  .card-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:24px;
+  }
+  .icon-badge{
+    width:36px; height:36px;
+    border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff;
+    flex-shrink:0;
+    box-shadow:0 6px 14px -4px var(--badge-shadow, rgba(0,113,227,0.5));
+  }
+  .icon-badge svg{ width:18px; height:18px; }
+  .icon-badge.badge-personal{ background:linear-gradient(135deg, #0071e3, #4fb4ff); --badge-shadow:rgba(0,113,227,0.45); }
+  .icon-badge.badge-sleep{ background:linear-gradient(135deg, #8b5cf6, #c084fc); --badge-shadow:rgba(139,92,246,0.45); }
+  .icon-badge.badge-vitals{ background:linear-gradient(135deg, #ff375f, #ff8a80); --badge-shadow:rgba(255,55,95,0.4); }
+  .card-header h3{
+    font-size:16px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+
+  .field-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px 16px;
+    margin-bottom:14px;
+  }
+  .field-grid.single{ grid-template-columns:1fr; }
+  .field-grid:last-child{ margin-bottom:0; }
+  @media (max-width:480px){
+    .field-grid{ grid-template-columns:1fr; }
+  }
+
+  .field label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:13px;
+    font-weight:500;
+    color:var(--text-secondary);
+    margin-bottom:8px;
+  }
+  .field label .val{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+  }
+
+  input, select{
+    width:100%;
+    padding:11px 13px;
+    background:var(--field);
+    border:none;
+    border-radius:11px;
+    color:var(--text);
+    font-family:var(--font);
+    font-size:15px;
+    font-weight:400;
+    transition:box-shadow .15s ease;
+  }
+  select{
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%236e6e73'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+    padding-right:30px;
+  }
+  input:focus, select:focus{
+    outline:none;
+    box-shadow:0 0 0 4px var(--blue-tint), inset 0 0 0 1.5px var(--blue);
+  }
+
+  input[type=range]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:4px;
+    border-radius:100px;
+    background:var(--field);
+    padding:0;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:22px; height:22px;
+    border-radius:50%;
+    background:#ffffff;
+    box-shadow:0 2px 8px rgba(139,92,246,0.4), 0 0 0 1px rgba(0,0,0,0.04);
+    cursor:pointer;
+    margin-top:-9px;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:22px; height:22px;
+    border:none;
+    border-radius:50%;
+    background:#ffffff;
+    box-shadow:0 2px 8px rgba(139,92,246,0.4), 0 0 0 1px rgba(0,0,0,0.04);
+    cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{ height:4px; border-radius:100px; }
+  input[type=range]::-moz-range-track{ height:4px; border-radius:100px; background:var(--field); }
+  input[type=range]::-moz-range-progress{ height:4px; border-radius:100px; background:linear-gradient(90deg, var(--blue), var(--purple)); }
+
+  button[type=submit]{
+    width:100%;
+    padding:16px;
+    background:linear-gradient(135deg, var(--blue), var(--purple));
+    background-size:160% 160%;
+    color:#fff;
+    border:none;
+    border-radius:980px;
+    font-family:var(--font);
+    font-weight:600;
+    font-size:16px;
+    letter-spacing:-0.005em;
+    cursor:pointer;
+    margin-top:6px;
+    box-shadow:0 10px 28px -8px rgba(139,92,246,0.55);
+    transition:background-position .5s ease, transform .08s ease, box-shadow .2s ease;
+  }
+  button[type=submit]:hover{
+    background-position:100% 0;
+    box-shadow:0 14px 34px -8px rgba(139,92,246,0.7);
+  }
+  button[type=submit]:active{ transform:scale(0.985); }
+  button[type=submit]:disabled{ opacity:0.5; cursor:progress; transform:none; }
+
+  .disclaimer{
+    font-size:12.5px;
+    color:var(--text-tertiary);
+    text-align:center;
+    margin:14px 0 0;
+  }
+
+  /* ---------- Result panel ---------- */
+  .result-panel{
+    position:sticky;
+    top:88px;
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    border:1px solid rgba(255,255,255,0.6);
+    border-radius:22px;
+    padding:32px 28px;
+    box-shadow:0 1px 1px rgba(0,0,0,0.02), 0 16px 40px -22px rgba(0,0,0,0.18);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+
+  .ring-wrap{ position:relative; width:148px; height:148px; margin-bottom:22px; }
+  .ring-wrap svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .ring-track{ fill:none; stroke:var(--field); stroke-width:11; }
+  .ring-fill{
+    fill:none;
+    stroke:var(--text-tertiary);
+    stroke-width:11;
+    stroke-linecap:round;
+    stroke-dasharray:396;
+    stroke-dashoffset:396;
+    transition:stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1), stroke 0.4s ease, filter 0.4s ease;
+  }
+  .ring-center{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ring-center svg{ width:30px; height:30px; transform:none; }
+
+  .result-panel.state-healthy .ring-fill{ stroke:url(#gradHealthy); filter:drop-shadow(0 0 10px rgba(52,199,89,0.55)); }
+  .result-panel.state-risk .ring-fill{ stroke:url(#gradRisk); filter:drop-shadow(0 0 10px rgba(255,149,0,0.5)); }
+  .result-panel.state-error .ring-fill{ stroke:url(#gradError); filter:drop-shadow(0 0 10px rgba(255,59,48,0.5)); }
+
+  .result-tag{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-tertiary);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin-bottom:10px;
+  }
+  .state-healthy .result-tag{ color:var(--green); }
+  .state-risk .result-tag{ color:var(--orange); }
+  .state-error .result-tag{ color:var(--red); }
+
+  .result-title{
+    font-size:21px;
+    font-weight:700;
+    letter-spacing:-0.015em;
+    margin:0 0 10px;
+    line-height:1.3;
+  }
+  .result-sub{
+    font-size:14px;
+    color:var(--text-secondary);
+    line-height:1.55;
+    margin:0 0 24px;
+  }
+
+  .stat-list{ width:100%; }
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 0;
+    border-top:1px solid var(--border);
+  }
+  .stat-row .k{ font-size:13.5px; color:var(--text-secondary); }
+  .stat-row .v{ font-family:var(--font-mono); font-size:14px; font-weight:600; color:var(--text); }
+
+  footer{
+    max-width:980px;
+    margin:60px auto 0;
+    padding:0 24px;
+    text-align:center;
+    color:var(--text-tertiary);
+    font-size:12.5px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .blob, .hero h1{ animation:none; }
+    .card, .ring-fill, button[type=submit]{ transition:none; }
+  }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Sleep Disorder AI Predictor</h1>
-    
-    <form id="prediction-form">
-        <div class="form-group">
-            <label>Gender</label>
-            <select id="Gender"><option>Male</option><option>Female</option></select>
-        </div>
-        
-        <div class="form-group">
-            <label>Age</label>
-            <input type="number" id="Age" value="30" required>
-        </div>
-
-        <div class="form-group">
-            <label>Occupation</label>
-            <select id="Occupation">
-                <option>Software Engineer</option><option>Doctor</option><option>Teacher</option>
-                <option>Nurse</option><option>Engineer</option><option>Accountant</option>
-                <option>Scientist</option><option>Lawyer</option><option>Salesperson</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Sleep Duration (hours)</label>
-            <input type="number" step="0.1" id="Sleep Duration" value="7.0" required>
-        </div>
-
-        <div class="form-group">
-            <label>Quality of Sleep (1-10)</label>
-            <input type="number" id="Quality of Sleep" value="7" min="1" max="10" required>
-        </div>
-
-        <div class="form-group">
-            <label>Physical Activity Level (minutes/day)</label>
-            <input type="number" id="Physical Activity Level" value="60" required>
-        </div>
-
-        <div class="form-group">
-            <label>Stress Level (1-10)</label>
-            <input type="number" id="Stress Level" value="5" min="1" max="10" required>
-        </div>
-
-        <div class="form-group">
-            <label>BMI Category</label>
-            <select id="BMI Category">
-                <option>Normal</option><option>Overweight</option><option>Obese</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Heart Rate (bpm)</label>
-            <input type="number" id="Heart Rate" value="70" required>
-        </div>
-
-        <div class="form-group">
-            <label>Daily Steps</label>
-            <input type="number" id="Daily Steps" value="8000" required>
-        </div>
-
-        <div class="form-group">
-            <label>Systolic Blood Pressure</label>
-            <input type="number" id="Systolic" value="120" required>
-        </div>
-
-        <div class="form-group">
-            <label>Diastolic Blood Pressure</label>
-            <input type="number" id="Diastolic" value="80" required>
-        </div>
-
-        <button type="submit">Analyze Sleep Profile</button>
-    </form>
-
-    <div id="result-box"></div>
+<div class="mesh" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 </div>
 
+<!-- Shared SVG gradient defs for the result ring -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="gradHealthy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34c759"/>
+      <stop offset="100%" stop-color="#30d5c8"/>
+    </linearGradient>
+    <linearGradient id="gradRisk" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9500"/>
+      <stop offset="100%" stop-color="#ff3b30"/>
+    </linearGradient>
+    <linearGradient id="gradError" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff3b30"/>
+      <stop offset="100%" stop-color="#ff2d78"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<nav>
+  <div class="nav-inner">
+    <div class="wordmark">Somnia</div>
+    <div class="nav-tag">Sleep Health</div>
+  </div>
+</nav>
+
+<div class="hero">
+  <span class="kicker">✦ AI-powered screening</span>
+  <h1>Understand your sleep,<br>in seconds.</h1>
+  <p>Answer a few questions about your sleep, activity, and vitals. We'll compare your profile against known sleep disorder patterns.</p>
+</div>
+
+<div class="layout">
+  <form id="prediction-form">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="icon-badge badge-personal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+        </div>
+        <h3>Personal details</h3>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="Gender">Gender</label>
+          <select id="Gender"><option>Male</option><option>Female</option></select>
+        </div>
+        <div class="field">
+          <label for="Age">Age</label>
+          <input type="number" id="Age" value="30" min="1" max="120" required>
+        </div>
+      </div>
+      <div class="field-grid single">
+        <div class="field">
+          <label for="Occupation">Occupation</label>
+          <select id="Occupation">
+            <option>Software Engineer</option><option>Doctor</option><option>Teacher</option>
+            <option>Nurse</option><option>Engineer</option><option>Accountant</option>
+            <option>Scientist</option><option>Lawyer</option><option>Salesperson</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="icon-badge badge-sleep">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.5A8.5 8.5 0 1 1 11.5 3a7 7 0 0 0 9.5 9.5z"/></svg>
+        </div>
+        <h3>Sleep &amp; lifestyle</h3>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="Sleep Duration">Sleep duration (hrs)</label>
+          <input type="number" step="0.1" id="Sleep Duration" value="7.0" min="0" max="14" required>
+        </div>
+        <div class="field">
+          <label for="Physical Activity Level">Activity (min/day)</label>
+          <input type="number" id="Physical Activity Level" value="60" min="0" max="300" required>
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="Quality of Sleep">Quality of sleep <span class="val" id="qual-val">7</span></label>
+          <input type="range" id="Quality of Sleep" value="7" min="1" max="10" required>
+        </div>
+        <div class="field">
+          <label for="Stress Level">Stress level <span class="val" id="stress-val">5</span></label>
+          <input type="range" id="Stress Level" value="5" min="1" max="10" required>
+        </div>
+      </div>
+      <div class="field-grid single">
+        <div class="field">
+          <label for="Daily Steps">Daily steps</label>
+          <input type="number" id="Daily Steps" value="8000" min="0" max="50000" step="100" required>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="icon-badge badge-vitals">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.2C.4 8.2 2.2 4.5 6 4.1c2-.2 3.7 1 4.9 2.5 1.2-1.5 2.9-2.7 4.9-2.5 3.8.4 5.6 4.1 4 7.7-2.5 4.6-10 9.2-10 9.2z"/></svg>
+        </div>
+        <h3>Vitals</h3>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="BMI Category">BMI category</label>
+          <select id="BMI Category">
+            <option>Normal</option><option>Overweight</option><option>Obese</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="Heart Rate">Heart rate (bpm)</label>
+          <input type="number" id="Heart Rate" value="70" min="30" max="220" required>
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="Systolic">Systolic BP</label>
+          <input type="number" id="Systolic" value="120" min="60" max="260" required>
+        </div>
+        <div class="field">
+          <label for="Diastolic">Diastolic BP</label>
+          <input type="number" id="Diastolic" value="80" min="40" max="160" required>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" id="submit-btn">Analyze my sleep profile</button>
+    <p class="disclaimer">Not a medical diagnosis. Talk to a doctor about persistent sleep issues.</p>
+  </form>
+
+  <div class="result-panel" id="result-panel">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 148 148">
+        <circle class="ring-track" cx="74" cy="74" r="63"></circle>
+        <circle class="ring-fill" id="ring-fill" cx="74" cy="74" r="63"></circle>
+      </svg>
+      <div class="ring-center" id="ring-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#a1a1a6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </div>
+    </div>
+    <p class="result-tag" id="result-tag">Not started</p>
+    <h2 class="result-title" id="result-title">Your results will appear here</h2>
+    <p class="result-sub" id="result-sub">Fill in the form and analyze to get your sleep disorder risk assessment.</p>
+
+    <div class="stat-list" id="stat-list" style="display:none;">
+      <div class="stat-row"><span class="k">Sleep quality</span><span class="v" id="stat-quality">—</span></div>
+      <div class="stat-row"><span class="k">Stress level</span><span class="v" id="stat-stress">—</span></div>
+    </div>
+  </div>
+</div>
+
+<footer>Somnia is a screening tool, not a medical diagnosis.</footer>
+
 <script>
-    // This JavaScript catches the form submission and sends it to our Flask API!
-    document.getElementById('prediction-form').addEventListener('submit', async (e) => {
-        e.preventDefault(); // Stop the page from reloading
-        
-        // Gather all the data the user typed in
-        const patientData = {
-            "Gender": document.getElementById('Gender').value,
-            "Age": parseInt(document.getElementById('Age').value),
-            "Occupation": document.getElementById('Occupation').value,
-            "Sleep Duration": parseFloat(document.getElementById('Sleep Duration').value),
-            "Quality of Sleep": parseInt(document.getElementById('Quality of Sleep').value),
-            "Physical Activity Level": parseInt(document.getElementById('Physical Activity Level').value),
-            "Stress Level": parseInt(document.getElementById('Stress Level').value),
-            "BMI Category": document.getElementById('BMI Category').value,
-            "Heart Rate": parseInt(document.getElementById('Heart Rate').value),
-            "Daily Steps": parseInt(document.getElementById('Daily Steps').value),
-            "Systolic": parseInt(document.getElementById('Systolic').value),
-            "Diastolic": parseInt(document.getElementById('Diastolic').value)
-        };
+  const qualInput = document.getElementById('Quality of Sleep');
+  const stressInput = document.getElementById('Stress Level');
+  const qualVal = document.getElementById('qual-val');
+  const stressVal = document.getElementById('stress-val');
 
-        const resultBox = document.getElementById('result-box');
-        resultBox.style.display = 'block';
-        resultBox.innerText = "Analyzing...";
-        resultBox.className = '';
+  function paintTrack(input){
+    const min = parseFloat(input.min), max = parseFloat(input.max), val = parseFloat(input.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    input.style.background = `linear-gradient(to right, var(--blue) ${pct*0.6}%, var(--purple) ${pct}%, var(--field) ${pct}%)`;
+  }
+  [qualInput, stressInput].forEach(paintTrack);
 
-        try {
-            // Send the package to our Flask route
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(patientData)
-            });
+  qualInput.addEventListener('input', () => { qualVal.textContent = qualInput.value; paintTrack(qualInput); });
+  stressInput.addEventListener('input', () => { stressVal.textContent = stressInput.value; paintTrack(stressInput); });
 
-            const data = await response.json();
+  const panel = document.getElementById('result-panel');
+  const ringFill = document.getElementById('ring-fill');
+  const ringIcon = document.getElementById('ring-icon');
+  const resultTag = document.getElementById('result-tag');
+  const title = document.getElementById('result-title');
+  const sub = document.getElementById('result-sub');
+  const statList = document.getElementById('stat-list');
+  const statQuality = document.getElementById('stat-quality');
+  const statStress = document.getElementById('stat-stress');
+  const submitBtn = document.getElementById('submit-btn');
 
-            // Display the result beautifully
-            if (data.error) {
-                resultBox.innerText = "Error: " + data.error;
-                resultBox.classList.add('disorder');
-            } else if (data.prediction === 'None') {
-                resultBox.innerText = "Diagnosis: Healthy Sleep Profile (No Disorder)";
-                resultBox.classList.add('healthy');
-            } else {
-                resultBox.innerText = "Diagnosis: High Risk of " + data.prediction;
-                resultBox.classList.add('disorder');
-            }
-        } catch (error) {
-            resultBox.innerText = "Failed to connect to the AI.";
-            resultBox.classList.add('disorder');
-        }
-    });
+  const CIRCUMFERENCE = 2 * Math.PI * 63;
+
+  function setState(state){
+    panel.classList.remove('state-healthy', 'state-risk', 'state-error');
+    if (state) panel.classList.add('state-' + state);
+  }
+  function setRing(fraction){
+    ringFill.style.strokeDashoffset = CIRCUMFERENCE - (fraction * CIRCUMFERENCE);
+  }
+  function setIcon(pathSvg){
+    ringIcon.innerHTML = pathSvg;
+  }
+
+  const icons = {
+    pending: '<svg viewBox="0 0 24 24" fill="none" stroke="#a1a1a6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    healthy: '<svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>',
+    risk: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff9500" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><circle cx="12" cy="16.5" r="0.6" fill="#ff9500"/><path d="M10.3 4.4L2.7 18a1.6 1.6 0 0 0 1.4 2.4h16a1.6 1.6 0 0 0 1.4-2.4L13.7 4.4a1.6 1.6 0 0 0-2.8 0z"/></svg>',
+    error: '<svg viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>'
+  };
+
+  document.getElementById('prediction-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const patientData = {
+      "Gender": document.getElementById('Gender').value,
+      "Age": parseInt(document.getElementById('Age').value),
+      "Occupation": document.getElementById('Occupation').value,
+      "Sleep Duration": parseFloat(document.getElementById('Sleep Duration').value),
+      "Quality of Sleep": parseInt(qualInput.value),
+      "Physical Activity Level": parseInt(document.getElementById('Physical Activity Level').value),
+      "Stress Level": parseInt(stressInput.value),
+      "BMI Category": document.getElementById('BMI Category').value,
+      "Heart Rate": parseInt(document.getElementById('Heart Rate').value),
+      "Daily Steps": parseInt(document.getElementById('Daily Steps').value),
+      "Systolic": parseInt(document.getElementById('Systolic').value),
+      "Diastolic": parseInt(document.getElementById('Diastolic').value)
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Analyzing…';
+    setState(null);
+    setIcon(icons.pending);
+    setRing(0.18);
+    resultTag.textContent = 'Analyzing';
+    title.textContent = 'Reviewing your profile';
+    sub.textContent = 'Comparing your inputs against the trained model.';
+
+    try {
+      const response = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patientData)
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        setState('error');
+        setIcon(icons.error);
+        setRing(1);
+        resultTag.textContent = 'Error';
+        title.textContent = 'Something went wrong';
+        sub.textContent = data.error;
+      } else if (data.prediction === 'None') {
+        setState('healthy');
+        setIcon(icons.healthy);
+        setRing(0.92);
+        resultTag.textContent = 'Low risk';
+        title.textContent = 'Healthy sleep profile';
+        sub.textContent = 'No disorder pattern detected — keep up the good habits.';
+      } else {
+        setState('risk');
+        setIcon(icons.risk);
+        setRing(0.7);
+        resultTag.textContent = 'Review recommended';
+        title.textContent = 'High risk of ' + data.prediction;
+        sub.textContent = 'Your profile shares patterns with diagnosed ' + data.prediction + ' cases. Consider talking to a doctor.';
+      }
+
+      statList.style.display = 'block';
+      statQuality.textContent = qualInput.value + ' / 10';
+      statStress.textContent = stressInput.value + ' / 10';
+
+    } catch (error) {
+      setState('error');
+      setIcon(icons.error);
+      setRing(1);
+      resultTag.textContent = 'Offline';
+      title.textContent = "Couldn't reach the model";
+      sub.textContent = 'Check that the API server is running and try again.';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Analyze my sleep profile';
+    }
+  });
 </script>
 
 </body>
