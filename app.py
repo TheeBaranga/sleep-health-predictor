@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import joblib
 import pandas as pd
 
@@ -14,7 +14,7 @@ except Exception as e:
 
 @app.route('/')
 def home():
-    return "Sleep Disorder Prediction API is actively running."
+    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():

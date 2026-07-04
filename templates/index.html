@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Disorder AI Predictor</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; padding: 40px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #2980b9; }
+        #result-box { margin-top: 20px; padding: 15px; border-radius: 5px; text-align: center; font-weight: bold; font-size: 18px; display: none; }
+        .healthy { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .disorder { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Sleep Disorder AI Predictor</h1>
+    
+    <form id="prediction-form">
+        <div class="form-group">
+            <label>Gender</label>
+            <select id="Gender"><option>Male</option><option>Female</option></select>
+        </div>
+        
+        <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="Age" value="30" required>
+        </div>
+
+        <div class="form-group">
+            <label>Occupation</label>
+            <select id="Occupation">
+                <option>Software Engineer</option><option>Doctor</option><option>Teacher</option>
+                <option>Nurse</option><option>Engineer</option><option>Accountant</option>
+                <option>Scientist</option><option>Lawyer</option><option>Salesperson</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Sleep Duration (hours)</label>
+            <input type="number" step="0.1" id="Sleep Duration" value="7.0" required>
+        </div>
+
+        <div class="form-group">
+            <label>Quality of Sleep (1-10)</label>
+            <input type="number" id="Quality of Sleep" value="7" min="1" max="10" required>
+        </div>
+
+        <div class="form-group">
+            <label>Physical Activity Level (minutes/day)</label>
+            <input type="number" id="Physical Activity Level" value="60" required>
+        </div>
+
+        <div class="form-group">
+            <label>Stress Level (1-10)</label>
+            <input type="number" id="Stress Level" value="5" min="1" max="10" required>
+        </div>
+
+        <div class="form-group">
+            <label>BMI Category</label>
+            <select id="BMI Category">
+                <option>Normal</option><option>Overweight</option><option>Obese</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Heart Rate (bpm)</label>
+            <input type="number" id="Heart Rate" value="70" required>
+        </div>
+
+        <div class="form-group">
+            <label>Daily Steps</label>
+            <input type="number" id="Daily Steps" value="8000" required>
+        </div>
+
+        <div class="form-group">
+            <label>Systolic Blood Pressure</label>
+            <input type="number" id="Systolic" value="120" required>
+        </div>
+
+        <div class="form-group">
+            <label>Diastolic Blood Pressure</label>
+            <input type="number" id="Diastolic" value="80" required>
+        </div>
+
+        <button type="submit">Analyze Sleep Profile</button>
+    </form>
+
+    <div id="result-box"></div>
+</div>
+
+<script>
+    // This JavaScript catches the form submission and sends it to our Flask API!
+    document.getElementById('prediction-form').addEventListener('submit', async (e) => {
+        e.preventDefault(); // Stop the page from reloading
+        
+        // Gather all the data the user typed in
+        const patientData = {
+            "Gender": document.getElementById('Gender').value,
+            "Age": parseInt(document.getElementById('Age').value),
+            "Occupation": document.getElementById('Occupation').value,
+            "Sleep Duration": parseFloat(document.getElementById('Sleep Duration').value),
+            "Quality of Sleep": parseInt(document.getElementById('Quality of Sleep').value),
+            "Physical Activity Level": parseInt(document.getElementById('Physical Activity Level').value),
+            "Stress Level": parseInt(document.getElementById('Stress Level').value),
+            "BMI Category": document.getElementById('BMI Category').value,
+            "Heart Rate": parseInt(document.getElementById('Heart Rate').value),
+            "Daily Steps": parseInt(document.getElementById('Daily Steps').value),
+            "Systolic": parseInt(document.getElementById('Systolic').value),
+            "Diastolic": parseInt(document.getElementById('Diastolic').value)
+        };
+
+        const resultBox = document.getElementById('result-box');
+        resultBox.style.display = 'block';
+        resultBox.innerText = "Analyzing...";
+        resultBox.className = '';
+
+        try {
+            // Send the package to our Flask route
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(patientData)
+            });
+
+            const data = await response.json();
+
+            // Display the result beautifully
+            if (data.error) {
+                resultBox.innerText = "Error: " + data.error;
+                resultBox.classList.add('disorder');
+            } else if (data.prediction === 'None') {
+                resultBox.innerText = "Diagnosis: Healthy Sleep Profile (No Disorder)";
+                resultBox.classList.add('healthy');
+            } else {
+                resultBox.innerText = "Diagnosis: High Risk of " + data.prediction;
+                resultBox.classList.add('disorder');
+            }
+        } catch (error) {
+            resultBox.innerText = "Failed to connect to the AI.";
+            resultBox.classList.add('disorder');
+        }
+    });
+</script>
+
+</body>
+</html>
