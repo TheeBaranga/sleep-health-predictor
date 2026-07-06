@@ -24,3 +24,18 @@ This project implements a complete Data Science and Software Engineering pipelin
 Make sure you have Python installed, then run:
 ```bash
 pip install flask pandas numpy scikit-learn joblib requests
+```
+
+### 2. Boot the Server
+Start the Flask backend by running this command in your project folder:
+```bash
+python app.py
+```
+*Note: The server is configured to run on Port 8080 to avoid macOS AirPlay conflicts.*
+
+### 3. Open the App
+Once the terminal says the server is running, open your web browser and navigate to:
+```text
+[http://127.0.0.1:8080](http://127.0.0.1:8080)
+```
+Type in a patient's lifestyle metrics and click "Analyze" to see the AI's real-time diagnosis!

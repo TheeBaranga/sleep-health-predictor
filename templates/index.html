@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Somnia — Sleep Health</title>
-<link rel="stylesheet" href="styling.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='styling.css') }}">
 
 
 </head>
@@ -193,7 +193,7 @@
 
 <footer>Somnia is a screening tool, not a medical diagnosis.</footer>
 
-<script type="text/javascript" src="idx.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='idx.js') }}"></script>
 
 </body>
 </html>
