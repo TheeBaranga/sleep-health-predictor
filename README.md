@@ -1,41 +1,108 @@
-# Sleep Disorder AI Predictor 
+# Sleep Disorder AI Predictor
 
-An end-to-end Machine Learning web application that predicts the likelihood of sleep disorders (Insomnia, Sleep Apnea, or None) based on a user's daily lifestyle metrics.
+An end-to-end Machine Learning web application that predicts the likelihood of sleep disorders (**Insomnia**, **Sleep Apnea**, or **None**) based on a user's lifestyle and health metrics.
 
 ## Overview
 
-This project implements a complete Data Science and Software Engineering pipeline:
-1. **Data Engineering:** Ingested raw CSV data, synthetically expanded it to 4,000+ records, and handled missing values using mathematical imputation (preventing data leakage).
-2. **Machine Learning:** Trained a `RandomForestClassifier` (achieving ~93% accuracy) using Scikit-Learn. Features were scaled and encoded for optimal performance.
-3. **Backend API:** Built a Flask server to host the trained model and translate incoming web traffic into mathematical arrays for real-time inference.
-4. **Frontend UI:** Designed an interactive, responsive web interface using HTML, CSS, and JavaScript.
+This project demonstrates a complete Machine Learning workflow, from data preparation to deployment as a web application.
+
+### Features
+
+- Expanded the original dataset to over **5,000 records** using controlled synthetic data generation.
+- Cleaned and prepared the dataset by handling missing values and removing inconsistencies.
+- Applied **SMOTE (Synthetic Minority Oversampling Technique)** to balance the target classes and improve model performance.
+- Built a preprocessing pipeline using **SimpleImputer**, **StandardScaler**, and **OneHotEncoder** with **ColumnTransformer**.
+- Trained a **Random Forest Classifier** to predict sleep disorders with approximately **90.5% test accuracy**.
+- Deployed the trained model through a **Flask REST API**.
+- Developed a responsive web interface using **HTML, CSS, and JavaScript** for real-time predictions.
+
+---
 
 ## Project Structure
 
-* `sleep-dtf.ipynb`: The Jupyter Notebook containing the leak-free data preparation and model training pipeline.
-* `app.py`: The Flask backend web server.
-* `test_api.py`: A Python script for testing the API routes via POST requests.
-* `templates/index.html`: The frontend user interface.
-* `*.pkl files`: The exported machine learning model, scaler, and text encoders.
-
-## Installation & Usage
-
-### 1. Install Dependencies
-Make sure you have Python installed, then run:
-```bash
-pip install flask pandas numpy scikit-learn joblib requests
+```
+sleep-health-predictor/
+│
+├── sleep-dtf.ipynb          # Data preparation, preprocessing, training and evaluation
+├── app.py                   # Flask backend
+├── test_api.py              # API testing script
+├── requirements.txt         # Project dependencies
+├── models/
+│   ├── rf_model.pkl         # Trained Random Forest model
+│   └── preprocessor.pkl     # Preprocessing pipeline
+│
+├── templates/
+│   └── index.html           # Frontend interface
+│
+└── static/                  # CSS and JavaScript files
 ```
 
-### 2. Boot the Server
-Start the Flask backend by running this command in your project folder:
+---
+
+## Technologies Used
+
+- Python
+- Flask
+- Scikit-learn
+- Pandas
+- NumPy
+- Matplotlib
+- imbalanced-learn (SMOTE)
+- HTML
+- CSS
+- JavaScript
+
+---
+
+## Installation
+
+Clone the repository and install the required packages.
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## Running the Application
+
+Start the Flask server.
+
 ```bash
 python app.py
 ```
-*Note: The server is configured to run on Port 8080 to avoid macOS AirPlay conflicts.*
 
-### 3. Open the App
-Once the terminal says the server is running, open your web browser and navigate to:
-```text
-[http://127.0.0.1:8080](http://127.0.0.1:8080)
+The application runs on:
+
 ```
-Type in a patient's lifestyle metrics and click "Analyze" to see the AI's real-time diagnosis!
+http://127.0.0.1:8080
+```
+
+Open this address in your browser, enter the patient's information, and click **Analyze** to receive a prediction.
+
+---
+
+## Machine Learning Pipeline
+
+1. Load and clean the dataset.
+2. Handle missing values.
+3. Generate additional synthetic records to improve dataset size.
+4. Balance the dataset using **SMOTE**.
+5. Split the data into training and testing sets.
+6. Apply preprocessing using:
+   - SimpleImputer
+   - StandardScaler
+   - OneHotEncoder
+   - ColumnTransformer
+7. Train a Random Forest Classifier.
+8. Evaluate the model using:
+   - Accuracy Score
+   - Classification Report
+   - Confusion Matrix
+9. Save the trained model and preprocessing pipeline using Joblib.
+
+---
+
+## Author
+
+Kalvin Baranga

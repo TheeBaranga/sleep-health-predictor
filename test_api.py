@@ -15,8 +15,8 @@ patient_data = {
     "BMI Category": "Obese",
     "Heart Rate": 82,
     "Daily Steps": 4500,
-    "Systolic": 140,
-    "Diastolic": 95
+    "Systolic BP": 140,
+    "Diastolic BP": 95
 }
 
 

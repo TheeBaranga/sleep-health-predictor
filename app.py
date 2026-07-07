@@ -5,9 +5,8 @@ import pandas as pd
 app = Flask(__name__)
 
 try:
-    model = joblib.load('sleep_model.pkl')
-    scaler = joblib.load('scaler.pkl')
-    encoders = joblib.load('encoders.pkl')
+    model = joblib.load("models/rf_model.pkl")
+    preprocessor = joblib.load("models/preprocessor.pkl")
     print("Model and tools successfully loaded!")
 except Exception as e:
     print(f"Error loading files: {e}")
@@ -19,24 +18,23 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        user_data = request.json
+        user_data = request.get_json()
         input_df = pd.DataFrame([user_data])
-        
-        # Translate words to numbers
-        for col in ['Gender', 'Occupation', 'BMI Category']:
-            input_df[col] = encoders[col].transform(input_df[col].astype(str))
             
-        # Scale the numbers
-        input_scaled = scaler.transform(input_df)
+        input_processed = preprocessor.transform(input_df)
+
+        prediction = model.predict(input_processed)[0]
         
-        # Make prediction
-        prediction_num = model.predict(input_scaled)[0]
-        prediction_text = encoders['Sleep Disorder'].inverse_transform([prediction_num])[0]
-        
-        return jsonify({'prediction': prediction_text})
+        return jsonify({
+            "status": "success",
+            "prediction": prediction
+        })
 
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 400
 
 # Start the server 
 if __name__ == '__main__':
