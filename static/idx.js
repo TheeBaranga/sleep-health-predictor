@@ -146,8 +146,8 @@ const patientData = {
     "BMI Category": document.getElementById('BMI Category').value,
     "Heart Rate": parseInt(document.getElementById('Heart Rate').value),
     "Daily Steps": parseInt(document.getElementById('Daily Steps').value),
-    "Systolic": parseInt(document.getElementById('Systolic').value),
-    "Diastolic": parseInt(document.getElementById('Diastolic').value)
+    "Systolic BP": parseInt(document.getElementById('Systolic').value),
+    "Diastolic BP": parseInt(document.getElementById('Diastolic').value)
 };
 
 submitBtn.disabled = true;
@@ -167,14 +167,15 @@ try {
     });
 
     const data = await response.json();
+    console.log("API Response:", data);
 
-    if (data.error) {
+    if (data.status === "error") {
     setState('error');
     setIcon(icons.error);
     setRing(1);
     resultTag.textContent = 'Error';
     title.textContent = 'Something went wrong';
-    sub.textContent = data.error;
+    sub.textContent = data.message;
     renderInfoCard(conditionContent._error);
     } else if (data.prediction === 'None') {
     setState('healthy');
@@ -188,8 +189,8 @@ try {
     setState('risk');
     setIcon(icons.risk);
     setRing(0.7);
-    resultTag.textContent = 'Review recommended';
-    title.textContent = 'High risk of ' + data.prediction;
+    resultTag.textContent = 'Prediction';
+    title.textContent = 'Predicted condition: ' + data.prediction;
     sub.textContent = 'Your profile shares patterns with diagnosed ' + data.prediction + ' cases. Consider talking to a doctor.';
     const conditionMatch = conditionContent[data.prediction] || {
         ...conditionContent._fallback,
